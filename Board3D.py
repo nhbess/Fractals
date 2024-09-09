@@ -42,7 +42,7 @@ if __name__ == '__main__':
     np.random.seed(seed)
     print(f'Seed: {seed}')
     ratio = 16/9
-    Y = 50
+    Y = 80
     X = Y   #int(Y/ratio)
     Z = X
     RUNS = X
@@ -58,4 +58,4 @@ if __name__ == '__main__':
 
         data = b.data
         data[0] = np.ones_like(data[0]) #THIS IS A HACK, need to fix
-        Visuals.make_gif(data, f'Run {run} Seed {seed}', 100, f'Run {run} Seed {seed}')
+        Visuals.make_gif(data, f'Seed {seed} Run {run}', 100, f'Seed {seed} Run {run}')

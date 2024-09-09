@@ -40,19 +40,19 @@ def make_gif(data:np.array, filename:str = 'animation.gif', duration:int = 100, 
         plotter.add_mesh(glyph, color="blue", show_edges=True, opacity=1)
 
         # Key light (primary light source)
-        plotter.add_light(pv.Light(position=(3, 3, 5), color='white', intensity=1))
+        plotter.add_light(pv.Light(position=(3, 3, 5), color='white', intensity=0.5))
 
         # Fill light (secondary light source to soften shadows)
-        plotter.add_light(pv.Light(position=(-3, -3, 3), color='white', intensity=0.5))
+        plotter.add_light(pv.Light(position=(-3, -3, 3), color='white', intensity=0.8))
 
         # Back light (to separate the object from the background)
-        plotter.add_light(pv.Light(position=(3, -3, -3), color='white', intensity=1))
+        plotter.add_light(pv.Light(position=(3, -3, -3), color='white', intensity=0.5))
 
         # Ambient light (base illumination)
-        plotter.add_light(pv.Light(position=(0, 0, 0), color='white', intensity=0.5))
+        plotter.add_light(pv.Light(position=(0, 0, 0), color='white', intensity=0.2))
 
         # Enable shadows
-        plotter.enable_shadows()
+        #plotter.enable_shadows()
 
         # Set the plot title
         if title:
@@ -63,5 +63,5 @@ def make_gif(data:np.array, filename:str = 'animation.gif', duration:int = 100, 
         
     plotter.close()
 
-#data = [np.random.randint(0, 2, (20, 20, 20)) for _ in range(3)]
+#data = [np.ones((20, 20, 20)) for _ in range(1)]
 #make_gif(data, 'test', 100, 'test')
