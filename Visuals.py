@@ -30,16 +30,15 @@ def create_visualization(data:np.array,
 
     print('Creating visualization...')
 
-    for i,d in enumerate(tqdm(data)):
 
+    for i,d in enumerate(tqdm(data)):
         points = np.argwhere(d == 1)
         cloud = pv.PolyData(points)
         glyph = cloud.glyph(scale=False, geom=pv.Cube())
 
         plotter.clear()
         if colors is not None: color = colors[i]
-        else: color = 'blue'
-
+        else: color = 'yellow'
         plotter.add_mesh(glyph, color=color, show_edges=True, opacity=1)
 
         # LIGHTING
@@ -68,5 +67,5 @@ def create_visualization(data:np.array,
 # Example usage:
 if __name__ == '__main__':
     data = [np.random.randint(0, 2, (3, 3, 3)) for _ in range(50)]  # Example data
-    create_visualization(data, 'test_gif', 100, 'Test GIF', gif=True, video=False, rotate=True)
+    
     create_visualization(data, 'test_video', 100, 'Test Video', gif=False, video=True, rotate=True)

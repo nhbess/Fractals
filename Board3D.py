@@ -19,7 +19,6 @@ class Board:
         self.data = []
         
         self.B = np.zeros((n, m, l), dtype=int)
-        #self.data.append(self.B.copy())
 
     def set_seeds(self, seeds:int) -> None:
         for _ in range(seeds):
@@ -42,12 +41,12 @@ if __name__ == '__main__':
     np.random.seed(seed)
     print(f'Seed: {seed}')
     ratio = 16/9
-    Y = 200
+    Y = 50
     X = Y   #int(Y/ratio)
     Z = X
     RUNS = X
 
-    for run in range(10):    
+    for run in range(1):    
         b = Board(X, Y, Z)
         b.B[X//2, Y//2, Z//2] = 1 #set seed in the middle
         
@@ -56,4 +55,4 @@ if __name__ == '__main__':
             b.update(kernel)
 
         data = b.data
-        Visuals.create_visualization(data, filename=f'Seed {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
+        Visuals.create_visualization(data, filename=f'Test {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
