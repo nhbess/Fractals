@@ -42,13 +42,12 @@ if __name__ == '__main__':
     np.random.seed(seed)
     print(f'Seed: {seed}')
     ratio = 16/9
-    Y = 80
+    Y = 200
     X = Y   #int(Y/ratio)
     Z = X
     RUNS = X
 
-
-    for run in range(3):    
+    for run in range(10):    
         b = Board(X, Y, Z)
         b.B[X//2, Y//2, Z//2] = 1 #set seed in the middle
         
@@ -57,5 +56,4 @@ if __name__ == '__main__':
             b.update(kernel)
 
         data = b.data
-        data[0] = np.ones_like(data[0]) #THIS IS A HACK, need to fix
-        Visuals.make_gif(data, f'Seed {seed} Run {run}', 100, f'Seed {seed} Run {run}')
+        Visuals.create_visualization(data, filename=f'Seed {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)

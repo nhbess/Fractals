@@ -2,66 +2,71 @@ import pyvista as pv
 import numpy as np
 from tqdm import tqdm
 import os
-import pyvista as pv
-import numpy as np
-from tqdm import tqdm
+import imageio
+import sys
 
 pv.global_theme.allow_empty_mesh = True
 
-def make_gif(data:np.array, filename:str = 'animation.gif', duration:int = 100, title:str = None) -> None:
+def create_visualization(data:np.array, 
+                         filename:str = 'animation', 
+                         duration:int = 100, 
+                         title:str = None, 
+                         gif:bool = False, 
+                         video:bool = False,
+                         rotate:bool = False,
+                         colors:np.array = None) -> None:
+    
+    if not gif and not video: raise ValueError('At least one of gif or video must be True')
     
     plotter = pv.Plotter(off_screen=True)  # Use off_screen=True to avoid displaying the window
-    
-    #check if folder MEDIA exists else create it
+
     if not os.path.exists('_MEDIA'):
         os.mkdir('_MEDIA')
-    plotter.open_gif(f'_MEDIA/{filename}.gif', duration=duration)  # Adjust duration per frame as needed
 
-    # Loop over each array in the list
-    print('Creating GIF...')
+    if gif: plotter.open_gif(f'_MEDIA/{filename}.gif', duration=duration)  # Adjust duration per frame as needed
+    frames = []
+    fps = 1000 / duration
+    num_frames = len(data)
 
+    print('Creating visualization...')
 
-    # Assuming `data` is a list of 3D numpy arrays and `plotter` is a PyVista Plotter instance
+    for i,d in enumerate(tqdm(data)):
 
-    for d in tqdm(data):
-        # Get the coordinates of the voxels where the value is 1
         points = np.argwhere(d == 1)
-
-        # Create a PyVista PolyData object with these points
         cloud = pv.PolyData(points)
-
-        # Create a 3D glyph (cube) for each point (voxel)
         glyph = cloud.glyph(scale=False, geom=pv.Cube())
 
-        # Clear previous data
         plotter.clear()
+        if colors is not None: color = colors[i]
+        else: color = 'blue'
 
-        # Add the glyphs to the plotter
-        plotter.add_mesh(glyph, color="blue", show_edges=True, opacity=1)
+        plotter.add_mesh(glyph, color=color, show_edges=True, opacity=1)
 
-        # Key light (primary light source)
+        # LIGHTING
         plotter.add_light(pv.Light(position=(3, 3, 5), color='white', intensity=0.5))
-
-        # Fill light (secondary light source to soften shadows)
         plotter.add_light(pv.Light(position=(-3, -3, 3), color='white', intensity=0.8))
-
-        # Back light (to separate the object from the background)
         plotter.add_light(pv.Light(position=(3, -3, -3), color='white', intensity=0.5))
-
-        # Ambient light (base illumination)
         plotter.add_light(pv.Light(position=(0, 0, 0), color='white', intensity=0.2))
 
-        # Enable shadows
-        #plotter.enable_shadows()
+        # CAMERA
+        plotter.reset_camera()
+        if rotate: plotter.camera.azimuth = float(360 * i / num_frames)
 
-        # Set the plot title
-        if title:
-            plotter.add_text(title, font_size=12)
+        if title: plotter.add_text(title, font_size=12)
 
-        # Capture the frame
-        plotter.write_frame()
-        
-    plotter.close()
+        if gif: plotter.write_frame()
+        if video:
+            img = plotter.screenshot(return_img=True)
+            frames.append(img)
 
-#data = [np.ones((20, 20, 20)) for _ in range(1)]
-#make_gif(data, 'test', 100, 'test')
+    if gif: plotter.close()
+    if video:
+        with imageio.get_writer(f'_MEDIA/{filename}.mp4', fps=fps) as writer:
+            for frame in frames:
+                writer.append_data(frame)
+
+# Example usage:
+if __name__ == '__main__':
+    data = [np.random.randint(0, 2, (3, 3, 3)) for _ in range(50)]  # Example data
+    create_visualization(data, 'test_gif', 100, 'Test GIF', gif=True, video=False, rotate=True)
+    create_visualization(data, 'test_video', 100, 'Test Video', gif=False, video=True, rotate=True)
