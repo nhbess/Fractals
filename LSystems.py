@@ -1,86 +1,75 @@
-import os
+import numpy as np
+from scipy.signal import convolve2d
 import sys
 
-import imageio
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import animation
-from PIL import Image
-from scipy.ndimage import convolve
-from tqdm import tqdm
-import Visuals
+class LSys:
+    def __init__(self, grid_size=(10, 10), N_SYMBOLS=5, N_RULES=3) -> None:        
+        self.grid_size = grid_size
+        self.n_symbols = N_SYMBOLS
 
-class Board:
-    def __init__(self, n:int, m:int,l:int) -> None:
-        self.n = n
-        self.m = m
-        self.l = l
+        self.A = np.arange(0, N_SYMBOLS)                           # Alphabet (symbols)
+        self.O = np.random.choice(self.A)                          # Axiom (initiator)
+        self.P = self._make_rules(N_RULES)                     # Production rules
         
-        self.A = np.arange(0,2)
-        self.O = np.random.choice(self.A)
-        self.P = self._production_rules()
-        self.W = np.random.randint(0, 2, len(self.P))        
-        
-        
-
-
-        self.data = []
-        
-        self.B = np.zeros((n, m, l), dtype=int)
-
-    def _production_rules(self) -> dict:
-        # Agregar o quitar, esa es la question.
-        N_RULES = 2 #number of production rules
-        N_REACTANTS = 2
-        N_PRODUCTS = 2
+        self.B = np.zeros(grid_size, dtype=int)                    # Initialize the grid with zeros (empty grid)
+        self.B[grid_size[0]//2, grid_size[1]//2] = 1          # Set the axiom in the middle of the grid
+        self.data = [self.B.copy()]                                # Store the data for visualization
+    
+    def _make_rules(self, N_RULES) -> list:
+        """Create random production rules."""
         P = []
+        P.append([np.array([[0, 0, 0], 
+                            [0, 1, 0], 
+                            [0, 0, 0]]), 
+                np.random.randint(0, self.n_symbols, (3, 3))])
         for _ in range(N_RULES):
-            reactants = np.random.choice(self.A, N_REACTANTS)
-            products = np.random.choice(self.A, N_PRODUCTS)
-            P.append((reactants, products))
+            P.append([np.random.randint(0, self.n_symbols, (3, 3)), np.random.randint(0, self.n_symbols, (3, 3))])
         return P
 
-    def set_seeds(self, seeds:int) -> None:
-        for _ in range(seeds):
-            x = np.random.randint(0, self.n)
-            y = np.random.randint(0, self.m)
-            z = np.random.randint(0, self.l)
-            self.B[x, y, z] = 1
-    
     def update(self) -> None:
-
-        kernel = np.random.randint(0, 2, (3, 3, 3))
         S = self.B.copy()
-        N = convolve(S, kernel, mode='wrap')
-        self.B[N == 1] = 1
+        for reactant, product in self.P:
+            #print(f'domain\n{reactant}')
+            #print(f'image\n{product}')
+            
+            
+            S = convolve2d(S, reactant, mode='same', boundary='wrap')
+        
+        
+        self.B = S
         self.data.append(self.B.copy())
 
-        if np.sum(self.W) == 0:
-            print('DEAD')
-        
-        #chose P with probability W        
-        active_production_rules = [p for p, w in zip(self.P, self.W) if w > 0]
-        print(f'active_production_rules {active_production_rules}')
-        sys.exit()
-            
 
-if __name__ == '__main__':
-    seed = np.random.randint(0, 100000000) 
-    np.random.seed(seed)
-    print(f'Seed: {seed}')
-    ratio = 16/9
-    Y = 50
-    X = Y   #int(Y/ratio)
-    Z = X
-    RUNS = X
+# Example usage
 
-    for run in range(1):    
-        b = Board(X, Y, Z)
-        b.B[X//2, Y//2, Z//2] = 1 #set seed in the middle
-        
-        kernel = np.random.randint(0, 2, (3, 3, 3))
-        for i in tqdm(range(RUNS)):
-            b.update(kernel)
+#set seeds
+seed = np.random.randint(0, 1000)
+np.random.seed(seed)
 
-        data = b.data
-        Visuals.create_visualization(data, filename=f'Test {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
+# good seeds = []
+size = 500
+lsystem = LSys(grid_size=(size, size), 
+               N_SYMBOLS=2,
+               N_RULES=1)
+
+from tqdm import tqdm
+for _ in tqdm(range(size*2)):
+    lsystem.update()
+
+print(seed)
+#print(lsystem.data)
+images = []
+
+#set seeds in the board
+
+for img_data in tqdm(lsystem.data):
+    img_data_scaled = (img_data * 255).astype(np.uint8)    
+    images.append(img_data_scaled)
+
+
+
+# Save as a GIF
+import imageio
+imageio.mimsave(f'test.gif', images, duration=10)
+
+print("Done, seed = ", seed)
