@@ -6,3 +6,4 @@ tqdm
 pyvista
 imageio[ffmpeg]
 imageio[pyav]
+opencv-python

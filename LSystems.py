@@ -83,4 +83,4 @@ if __name__ == '__main__':
             b.update(kernel)
 
         data = b.data
-        Visuals.create_visualization(data, filename=f'Test {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
+        Visuals.create_visualization_pyvista(data, filename=f'Test {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
