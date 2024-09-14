@@ -20,26 +20,19 @@ def _reward_function_individual(individual:np.array, target:np.array):
     X,Y = target.shape
     rules = np.copy(individual)
     rules = rules.reshape(-1, 2, 3, 3) # [N_PRODUCTION_RULES, reactant and products, 3, 3]
-    #apply sigmoid to rules values
-    rules = 1 / (1 + np.exp(-rules))
-    rules = np.where(rules > 0.5, 1, 0)
+
 
     b = LS(X, Y, production_rules=rules)
     for i in range(X):
             b.update()
     
     result = b.data
-
-    errors_frames = []
-    for frame in result:
-        loss = np.sum(np.square(target - frame))
-        errors_frames.append(loss)
-    loss = np.mean(errors_frames)
-    reward = 1 / (1 + loss)
-    return reward
-
-    sys.exit()
-    loss = np.sum(np.square(targets - result))
+    loss = np.sum(np.square(target - result[-1]))
+    #errors_frames = []
+    #for frame in result:
+    #    loss = np.sum(np.square(target - frame))
+    #    errors_frames.append(loss)
+    #loss = np.mean(errors_frames)
     reward = 1 / (1 + loss)
     return reward
 
@@ -78,12 +71,13 @@ if __name__ == '__main__':
     np.random.seed(seed)
     
     target = Util.load_image_as_numpy_array('Mario.png', black_and_white=True, binary=True, sensibility=0.1)
+    #resize image to 8x8
     #target = np.zeros((5,5))
     #target[4,:] = 1
     #target[:,4] = 1
     #target = target[:int(target.shape[0]/2), :int(target.shape[1]/2)]
     X,Y = target.shape
-    N_PRODUCTION_RULES = 5
+    N_PRODUCTION_RULES = 8
 
     print(f'target.size {target.size}')
     
@@ -91,13 +85,12 @@ if __name__ == '__main__':
     
     best_individual = evolve(target=target, 
                              num_params=N_PARAMETERS,
-                             popsize=100,
-                             n_generations=50)
+                             popsize=50,
+                             n_generations=100)
     
     rules = np.copy(best_individual)
     rules = rules.reshape(-1, 2, 3, 3) # [N_PRODUCTION_RULES, reactant and products, 3, 3]
-    rules = 1 / (1 + np.exp(-rules))
-    rules = np.where(rules > 0.5, 1, 0)
+
 
     b = LS(X, Y, production_rules=rules)
     print(f'P: {b.P}')
@@ -108,35 +101,7 @@ if __name__ == '__main__':
 
     data = b.data
     print(data[-1])
-    Visuals.create_visualization_grid(data, filename=f'Test', duration=100, gif=True, video=False)
+    Visuals.create_visualization_grid(data, filename=f'_MEDIA_LCA/Test', duration=100, gif=True, video=False)
+    Visuals.visualize_target_result(target, data, filename='_MEDIA_LCA/Result.png')
+    Visuals.visualize_evolution_results(result_path='Evolution/results.json', filename='_MEDIA_LCA/Best_rewards.png')
 
-    import matplotlib.pyplot as plt
-    # side by side comparison
-    fig, ax = plt.subplots(1,2)
-    ax[0].imshow(target, cmap='gray')
-    ax[0].set_title('Target')
-    ax[1].imshow(data[-1], cmap='gray')
-    ax[1].set_title('Result')
-    #save image
-    plt.savefig('Result.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
-    result_path = 'Evolution/results.json'
-    with open(result_path, 'r') as f:
-        results = json.load(f)
-
-    rewards = results['REWARDS']
-    mean_rewards = np.mean(rewards, axis=1)
-    std_rewards = np.std(rewards, axis=1)
-    plt.figure()
-    plt.plot(mean_rewards)
-    #fill between
-    plt.fill_between(range(len(mean_rewards)), mean_rewards - std_rewards, mean_rewards + std_rewards, alpha=0.3)
-    #plot max rewards
-    best_rewards = np.max(rewards, axis=1)
-    plt.plot(best_rewards, 'r')
-    plt.title('Best rewards')
-    plt.xlabel('Generation')
-    plt.ylabel('Reward')
-    plt.savefig('Best_rewards.png', dpi=300, bbox_inches='tight')
-    plt.close()

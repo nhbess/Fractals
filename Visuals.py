@@ -1,6 +1,6 @@
 import os
 import sys
-
+import json
 import imageio
 import matplotlib.pyplot as plt
 import numpy as np
@@ -113,6 +113,36 @@ def create_visualization_grid(data: np.array,
     
     plt.close(fig)
 
+
+def visualize_target_result(target, data, filename):            
+    fig, ax = plt.subplots(1,2)
+    ax[0].imshow(target, cmap='gray')
+    ax[0].set_title('Target')
+    ax[1].imshow(data[-1], cmap='gray')
+    ax[1].set_title('Result')
+    ax[0].axis('off')
+    ax[1].axis('off')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close()
+
+def visualize_evolution_results(result_path:str, filename:str):
+    with open(result_path, 'r') as f:
+        results = json.load(f)
+    rewards = results['REWARDS']
+    mean_rewards = np.mean(rewards, axis=1)
+    std_rewards = np.std(rewards, axis=1)
+    plt.figure()
+    plt.plot(mean_rewards)
+    #fill between
+    plt.fill_between(range(len(mean_rewards)), mean_rewards - std_rewards, mean_rewards + std_rewards, alpha=0.3)
+    #plot max rewards
+    best_rewards = np.max(rewards, axis=1)
+    plt.plot(best_rewards, 'r')
+    plt.title('Best rewards')
+    plt.xlabel('Generation')
+    plt.ylabel('Reward')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close()
 
 
 if __name__ == '__main__':
