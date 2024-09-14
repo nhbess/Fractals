@@ -9,6 +9,7 @@ from PIL import Image
 from scipy.ndimage import convolve
 from tqdm import tqdm
 import Visuals
+np.set_printoptions(precision=2, suppress=True)
 
 class LS:
     def __init__(self, n:int, m:int, n_production_rules:int = 2, production_rules = None) -> None:
@@ -40,11 +41,11 @@ class LS:
         P.append([  np.array([[0, 0, 0], 
                               [0, 1, 0], 
                               [0, 0, 0]]), 
-                    np.random.randint(0, 2, (3, 3))]) #First rule
+                    np.random.random((3, 3))*2-1]) #First rule
 
         for _ in range(n_production_rules):
-            reactants = np.random.randint(0, 2, (3, 3))
-            products = np.random.randint(0, 2, (3, 3))
+            reactants = np.random.random((3, 3))*2 - 1
+            products = np.random.random((3, 3))*2 - 1
             P.append([reactants, products])
 
         return P
@@ -53,20 +54,26 @@ class LS:
         S = self.B.copy()
         for rule in self.P:
             reactant, product = rule
+            
+            #print(f'reactant:\n{reactant}')
+            #print(f'product:\n{product}')
             reactant = reactant.clip(0, 1)
-            reactant = np.where(reactant > 0, 0, reactant)
+            reactant = np.where(reactant > 0, 1, np.round(reactant,1))
+
+            product = product.clip(0, 1)
+            product = np.where(product > 0, 1, np.round(product,1))
+            #print(f'reactant:\n{reactant}')
+            #print(f'product:\n{product}')
+
             M = self._find_pattern(S, reactant)
             if sum(sum(M)) == 0:
                 continue
-            #print(f'pattern\n{M}')
             
             N = convolve(M, product, mode='wrap')
+            #print(f'N:\n{N}')
+            #print(f'B:\n{self.B}')
             self.B[N == 1] = 1
-            # where N == 1, set to 1 in B where N == 0, leave deduct 1 in B
-            #self.B[N == 0] = np.where(self.B[N == 0] == 0, 0, self.B[N == 0] - 1)
-            #self.B = np.where(N == 1, 1, self.B)
-            #self.B = np.where(N == 0, np.where(self.B == 0, 0, self.B - 1), self.B)
-            #self.B = np.clip(self.B, 0, 1)
+            
 
         self.data.append(self.B.copy())
 
@@ -74,18 +81,18 @@ class LS:
 
 if __name__ == '__main__':
     pass
-    #seed = np.random.randint(0, 100000000) 
-    #
-    #np.random.seed(seed)
-    #print(f'Seed: {seed}')
-    #Y = 50
-    #X = Y   #int(Y/ratio)
-    #RUNS = X
-    #N_PRODUCTION_RULES = 100
-    #for run in range(1):    
-    #    b = Board(X, Y, N_PRODUCTION_RULES)
-    #    for i in range(Y*2):
-    #        b.update()
-#
-    #    data = b.data
-    #    Visuals.create_visualization_grid(data, filename=f'Test', duration=100, gif=True, video=False)
+    seed = np.random.randint(0, 100000000) 
+    
+    np.random.seed(seed)
+    print(f'Seed: {seed}')
+    Y = 10
+    X = Y   #int(Y/ratio)
+    RUNS = X
+    N_PRODUCTION_RULES = 1
+    for run in range(1):    
+        b = LS(X, Y, N_PRODUCTION_RULES)
+        for i in range(Y*2):
+            b.update()
+
+        data = b.data
+        Visuals.create_visualization_grid(data, filename=f'Test', duration=100, gif=True, video=False)
