@@ -27,12 +27,12 @@ class GLS:
         
     def _production_rules(self, n_production_rules) -> dict:
         N_REACTANTS = 1
-        N_PRODUCTS = 4
+        N_PRODUCTS = 5
 
         REACTANTS = []
         PRODUCTS = []
 
-        CONTEXT_FREE = True
+        CONTEXT_FREE = False # The false option False DOESN'T WORK YET
         VARIABLE_PRODUCTS = True
 
         for i in range(n_production_rules):
@@ -54,7 +54,7 @@ class GLS:
             if not any(np.array_equal(reactant, r) for r in REACTANTS):
                 REACTANTS.append(reactant)
                 PRODUCTS.append(product)
-                print(f'Rule {len(REACTANTS)}: {reactant} -> {product}')
+                print(f'Rule {len(REACTANTS)}:      {reactant} -> {product}')
 
         P = [[r,p] for r,p in zip(REACTANTS, PRODUCTS)]
         return P
@@ -62,27 +62,31 @@ class GLS:
     def update(self) -> None:
         new_S = []
         for s in self.S:
+            #print(f'Checking symbol: {s}')
             for rule in self.P:
                 reactant, product = rule
+                #print(f'    Checking rule: {reactant} -> {product}')
+
                 if np.all(reactant == s):
                     new_S.extend(product)
                     break  # Ensures only the first matching rule is applied
-                    
+  
         RESTRICT_SIZE = 100
-        if len(new_S) > RESTRICT_SIZE:
+        if RESTRICT_SIZE is not None and len(new_S) > RESTRICT_SIZE:
             new_S = new_S[:RESTRICT_SIZE]
         self.S = np.array(new_S)
         self.data.append(self.S.copy())
+        print(f'S: {self.S}')
 
 if __name__ == '__main__':
     seed = np.random.randint(0, 100000000) 
-    #seed = 74340482
+    #seed = 50645431
     np.random.seed(seed)
     print(f'Seed: {seed}')
     
-    N_UPDATES = 100
+    N_UPDATES = 10
     N_SYMBOLS = 10
-    N_PRODUCTION_RULES = 10*2
+    N_PRODUCTION_RULES = 20
     
     for run in range(1):
         b = GLS(n_symbols=N_SYMBOLS, n_production_rules=N_PRODUCTION_RULES)
@@ -93,8 +97,6 @@ if __name__ == '__main__':
         data = b.data
 
         maximum_length = max([len(d) for d in data])
-        if maximum_length < 4:
-            continue
         n_updates = len(data)
         new_data = np.zeros((n_updates, maximum_length), dtype=int)
         for i, d in enumerate(data):
