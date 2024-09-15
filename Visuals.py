@@ -92,7 +92,7 @@ def create_visualization_grid(data: np.array,
 
         ax.axis('off')
         fig.add_axes(ax)
-        ax.imshow(data[frame], cmap='inferno', norm=plt.Normalize(0, 1))
+        ax.imshow(data[frame], cmap='Greys', norm=plt.Normalize(0, 1))
         
     # Creating the animation object
     ani = plt.matplotlib.animation.FuncAnimation(

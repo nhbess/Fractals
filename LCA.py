@@ -77,7 +77,7 @@ if __name__ == '__main__':
     #target[:,4] = 1
     #target = target[:int(target.shape[0]/2), :int(target.shape[1]/2)]
     X,Y = target.shape
-    N_PRODUCTION_RULES = 8
+    N_PRODUCTION_RULES = 15
 
     print(f'target.size {target.size}')
     
