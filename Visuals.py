@@ -144,6 +144,12 @@ def visualize_evolution_results(result_path:str, filename:str):
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.close()
 
+def plot_frame(data, filename, cmap='Blues'):
+    plt.figure()
+    plt.imshow(data, cmap=cmap)
+    plt.axis('off')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.close()
 
 if __name__ == '__main__':
     pass
