@@ -85,8 +85,8 @@ if __name__ == '__main__':
     
     best_individual = evolve(target=target, 
                              num_params=N_PARAMETERS,
-                             popsize=50,
-                             n_generations=100)
+                             popsize=5,
+                             n_generations=5)
     
     rules = np.copy(best_individual)
     rules = rules.reshape(-1, 2, 3, 3) # [N_PRODUCTION_RULES, reactant and products, 3, 3]
