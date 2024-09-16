@@ -84,9 +84,9 @@ if __name__ == '__main__':
     np.random.seed(seed)
     print(f'Seed: {seed}')
     
-    N_UPDATES = 100
-    N_SYMBOLS = 2
-    N_PRODUCTION_RULES = 20
+    N_UPDATES = 50
+    N_SYMBOLS = 50
+    N_PRODUCTION_RULES = 50
     
     for run in range(1):
         b = GLS(n_symbols=N_SYMBOLS, n_production_rules=N_PRODUCTION_RULES)
