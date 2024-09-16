@@ -87,8 +87,8 @@ if __name__ == '__main__':
     
     best_individual = evolve(target=target, 
                              num_params=N_PARAMETERS,
-                             popsize=5,
-                             n_generations=5)
+                             popsize=2,
+                             n_generations=2)
     
     rules = np.copy(best_individual)
     np.savetxt('_MEDIA_LCA/rules.txt', rules.flatten())
