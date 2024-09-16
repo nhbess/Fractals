@@ -73,7 +73,7 @@ class LS:
             #print(f'N:\n{N}')
             #print(f'B:\n{self.B}')
             self.B[N == 1] = 1
-            
+            print(self.B)
 
         self.data.append(self.B.copy())
 

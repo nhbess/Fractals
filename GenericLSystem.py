@@ -84,8 +84,8 @@ if __name__ == '__main__':
     np.random.seed(seed)
     print(f'Seed: {seed}')
     
-    N_UPDATES = 10
-    N_SYMBOLS = 10
+    N_UPDATES = 100
+    N_SYMBOLS = 2
     N_PRODUCTION_RULES = 20
     
     for run in range(1):
