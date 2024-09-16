@@ -8,6 +8,8 @@ import Visuals
 from LSystemsNEW import LS
 from tqdm import tqdm
 import Util
+import pickle
+
 np.set_printoptions(precision=2, suppress=True)
 
 
@@ -59,7 +61,7 @@ def evolve(target:np.array, num_params:int, n_generations=100, popsize=20):
         results['REWARDS'].append(fitness_list.tolist())
 
         this_dir = os.path.dirname(os.path.abspath(__file__))        
-        file_path = os.path.join(this_dir, 'Evolution/results.json')
+        file_path = os.path.join(this_dir, '_MEDIA_LCA/results.json')
     
     with open(file_path, 'w') as f:
         json.dump(results, f)
@@ -89,10 +91,16 @@ if __name__ == '__main__':
                              n_generations=5)
     
     rules = np.copy(best_individual)
+    np.savetxt('_MEDIA_LCA/rules.txt', rules.flatten())
     rules = rules.reshape(-1, 2, 3, 3) # [N_PRODUCTION_RULES, reactant and products, 3, 3]
+    #save model b
 
 
     b = LS(X, Y, production_rules=rules)
+    #save model b in a pickle file
+    with open('_MEDIA_LCA/model.pkl', 'wb') as f:
+        pickle.dump(b, f)
+
     print(f'P: {b.P}')
     
     for i in range(X):
