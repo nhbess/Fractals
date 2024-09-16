@@ -1,13 +1,7 @@
-import os
 import sys
-
-import imageio
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation
-from PIL import Image
 from scipy.ndimage import convolve
-from tqdm import tqdm
 import Visuals
 np.set_printoptions(precision=2, suppress=True)
 
@@ -87,7 +81,7 @@ if __name__ == '__main__':
     Y = 10
     X = Y   #int(Y/ratio)
     RUNS = X
-    N_PRODUCTION_RULES = 1
+    N_PRODUCTION_RULES = 10
     for run in range(1):    
         b = LS(X, Y, N_PRODUCTION_RULES)
         for i in range(Y*2):
