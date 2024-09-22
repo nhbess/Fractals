@@ -1,5 +1,0 @@
-scancel <job id>    #cancel ID job
-pestat              #status
-squeue              #jobs in the queue
-tail -f <filename>  #tracks file
-sbatch <.job>       #run
