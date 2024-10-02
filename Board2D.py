@@ -1,13 +1,11 @@
+import datetime
 import os
-import sys
 
 import imageio
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation
-from PIL import Image
 from scipy.signal import convolve2d
 from tqdm import tqdm
+
 
 class Board:
     def __init__(self, n:int, m:int) -> None:
@@ -36,36 +34,36 @@ class Board:
         self.B[N == 1] = 1
         self.data.append(self.B.copy())
 
+if __name__ == '__main__':
+
+    for run in tqdm(range(1)):
+        seed = np.random.randint(0, 100000000)
+        np.random.seed(seed)
+        print(f'Seed: {seed}')
+
+        ratio = 16/9
+        Y = 500
+        X = int(Y/ratio)
+
+        print(f'X: {X}, Y: {Y}')
+
+        b = Board(X, Y)
+        b.B[X//2, Y//2] = 1
+        kernel = np.random.randint(0, 2, (3, 3))
+        print(f'Kernel:\n{kernel}')
 
 
-for run in tqdm(range(1)):
-    seed = np.random.randint(0, 100000000)
-    seed = 79945574
-    np.random.seed(seed)
-    print(f'Seed: {seed}')
+        for i in tqdm(range(int(Y*1.5))):
+            b.update(kernel)
 
-    ratio = 16/9
-    Y = 1000
-    X = int(Y/ratio)
+        height, width, = b.data[0].shape
+        images = []
+        for img_data in b.data:
+            img_data_scaled = (img_data * 255).astype(np.uint8)
+            images.append(img_data_scaled)
 
-    print(f'X: {X}, Y: {Y}')
 
-    b = Board(X, Y)
-    #b.set_seeds(1)
-    b.B[X//2, Y//2] = 1
-    kernel = np.random.randint(0, 2, (3, 3))
-    print(f'Kernel:\n{kernel}')
-    
-
-    for i in tqdm(range(int(Y*1.5))):
-        b.update(kernel)
-
-    height, width, = b.data[0].shape
-    images = []
-    for img_data in b.data:
-        img_data_scaled = (img_data * 255).astype(np.uint8)
-        images.append(img_data_scaled)
-        
-    # Save as a GIF
-    imageio.mimsave(f'ratio_2.gif', images, duration=50)
-    
+        date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        if not os.path.exists('_MEDIA/'):
+            os.makedirs('_MEDIA/')
+        imageio.mimsave(f'_MEDIA/{date}_{seed}_{run}.gif', images, duration=50)

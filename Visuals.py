@@ -23,10 +23,7 @@ def create_visualization_pyvista(data:np.array,
     
     plotter = pv.Plotter(off_screen=True)  # Use off_screen=True to avoid displaying the window
 
-    if not os.path.exists('_MEDIA'):
-        os.mkdir('_MEDIA')
-
-    if gif: plotter.open_gif(f'_MEDIA/{filename}.gif', duration=duration)  # Adjust duration per frame as needed
+    if gif: plotter.open_gif(f'{filename}.gif', duration=duration)  # Adjust duration per frame as needed
     frames = []
     fps = 1000 / duration
     num_frames = len(data)
@@ -63,7 +60,7 @@ def create_visualization_pyvista(data:np.array,
 
     if gif: plotter.close()
     if video:
-        with imageio.get_writer(f'_MEDIA/{filename}.mp4', fps=fps) as writer:
+        with imageio.get_writer(f'{filename}.mp4', fps=fps) as writer:
             for frame in frames:
                 writer.append_data(frame)
 

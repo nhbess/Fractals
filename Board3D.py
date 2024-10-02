@@ -1,11 +1,7 @@
 import os
 import sys
-
-import imageio
-import matplotlib.pyplot as plt
+import datetime
 import numpy as np
-from matplotlib import animation
-from PIL import Image
 from scipy.ndimage import convolve
 from tqdm import tqdm
 import Visuals
@@ -55,4 +51,7 @@ if __name__ == '__main__':
             b.update(kernel)
 
         data = b.data
-        Visuals.create_visualization_pyvista(data, filename=f'Test {seed} Run {run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
+        date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        if not os.path.exists('_MEDIA/'):
+            os.makedirs('_MEDIA/')
+        Visuals.create_visualization_pyvista(data, filename=f'_MEDIA/{date}_{seed}_{run}', duration=100, title=f'Run {run}', gif=False, video=True, rotate=True)
