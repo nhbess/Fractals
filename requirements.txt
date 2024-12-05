@@ -1,4 +1,3 @@
-numpy
 imageio
 matplotlib
 scipy
@@ -8,3 +7,17 @@ imageio[ffmpeg]
 imageio[pyav]
 cma
 tqdm
+
+numpy
+shapely
+matplotlib
+pygame
+
+# Add the extra index URL before PyTorch packages
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+torch
+torchvision
+
+seaborn
+opencv-python
