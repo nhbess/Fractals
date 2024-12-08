@@ -120,7 +120,7 @@ if __name__ == '__main__':
     b.B[X//2, Y//2] = 1
     #b.B = np.random.randint(-1,2,(X, Y))
 
-    N_KERNELS = 2
+    N_KERNELS = 1
     kernels = []
     for i in range(N_KERNELS):
         kernel = np.random.random((3, 3))*2 - 1
@@ -128,11 +128,13 @@ if __name__ == '__main__':
         print(f'Kernel {i}:\n{kernel}')
         
         kernel_expanded = expand_array(kernel)
-        for j in range(1,1):
-            print(f'Kernel expanded{i}:\n{kernel_expanded.size}')
-            kernels.append(kernel_expanded)
+        for j in range(1,4):
+            print(f'Kernel expanded{i}:\n{kernel_expanded.shape}')
+            #kernels.append(kernel_expanded)
             kernel_expanded = expand_array(kernel_expanded)
-
+        
+        kernels.append(kernel_expanded)
+            
     for i in tqdm(range(UPDATES)):
         b.update_multikernel(kernels)
         
