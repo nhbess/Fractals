@@ -30,7 +30,9 @@ class Board:
     def update_simple(self, kernel) -> None:    
         S = self.B.copy()
         N = convolve2d(S, kernel, mode='same', boundary='wrap')
-        self.B[N == 1] = 1
+        #self.B[N == 1] = 1
+        self.B = self.B + N
+        self.B = np.clip(self.B, -1, 1)
         self.data.append(self.B.copy())
 
     def update_multikernel(self, kernels) -> None:
@@ -38,82 +40,101 @@ class Board:
             self.update_simple(kernel)
 
 
+def make_gif(b: Board) -> None:
+    height, width, = b.data[0].shape
+    images = []
+    for img_data in b.data:
+        img_data_scaled = (img_data * 255).astype(np.uint8)
+        images.append(img_data_scaled)
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    folder_name = '_MEDIA_New'
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    #imageio.mimsave(f'{folder_name}/{date}_{seed}_{run}.gif', images, duration=50)
+    imageio.mimsave(f'test.gif', images, duration=5)
+
+def make_gif_color(b: Board) -> None:
+    height, width = b.data[0].shape
+    images = []
+    for img_data in b.data:
+        # Ensure img_data is in float to prevent overflow
+        img_data = img_data.astype(np.float64)
+        min_val = np.min(img_data)
+        max_val = np.max(img_data)
+        if max_val > min_val:
+            # Normalize when there's a range
+            img_data_normalized = (img_data - min_val) / (max_val - min_val)
+        else:
+            # Handle edge case where all values are the same
+            img_data_normalized = np.zeros_like(img_data)
+
+        # Convert normalized data to 8-bit format for visualization
+        img_data_scaled = (img_data_normalized * 255).astype(np.uint8)
+        images.append(img_data_scaled)
+    
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    folder_name = '_MEDIA_New'
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    # Save the GIF
+    #imageio.mimsave(f'{folder_name}/{date}.gif', images, duration=5)
+    imageio.mimsave(f'test.gif', images, duration=5)
+
+
+
+def expand_array(input_array):
+    """
+    Expands an NxM array into a (2N)x(2M) array by replicating each element in a 2x2 block.
+    
+    Parameters:
+        input_array (np.ndarray): The input array of size NxM.
+    
+    Returns:
+        np.ndarray: The expanded array of size (2N)x(2M).
+    """
+    input_array = np.asarray(input_array)  # Ensure input is a NumPy array
+    return np.repeat(np.repeat(input_array, 2, axis=0), 2, axis=1)
+
 
 
 if __name__ == '__main__':
-    import numpy as np
+    seed = np.random.randint(0, 100000000)
 
-    def expand_array(input_array):
-        """
-        Expands an NxM array into a (2N)x(2M) array by replicating each element in a 2x2 block.
-        
-        Parameters:
-            input_array (np.ndarray): The input array of size NxM.
-        
-        Returns:
-            np.ndarray: The expanded array of size (2N)x(2M).
-        """
-        input_array = np.asarray(input_array)  # Ensure input is a NumPy array
-        return np.repeat(np.repeat(input_array, 2, axis=0), 2, axis=1)
-
+    np.random.seed(seed)
+    print(f'Seed: {seed}')
 
     mario = load_simple_image_as_numpy_array('assets/Mario.png')    
-    N_KERNELS = 2
-    kernels = [mario]
-    
-    for i in range(1,N_KERNELS+1):
-        kernel = expand_array(kernels[-1])
-        kernels.append(kernel)
-        print(f'Kernel {i} {kernel.shape}:\n{kernel}')
-
-
-    reactants = [int(np.sum(kernel)) for kernel in kernels]
-    products = [k for k in kernels]
-    products[-1] = [0]    
-    print(f'Reactants: {reactants}')
-    print(f'Products: {products}')
-    #kernels = kernels[::-1]
-    #for i in range(1,N_KERNELS+1):
-    #    kernel = expand_array(kernels[-1])
-    #    kernels.append(kernel)
-    #    print(f'Kernel {i} {kernel.shape}:\n{kernel}')
 
     ratio = 16/9
-    Y = 200
+    Y = 100
     X = int(Y/ratio)
-    X = 200
+    X = 100
 
-    
     UPDATES = int(Y*1.5)
-    UPDATES = 10
     
     print(f'X: {X}, Y: {Y}')
+    
+    
+    
+    b = Board(X, Y)
+    b.B[X//2, Y//2] = 1
+    #b.B = np.random.randint(-1,2,(X, Y))
 
-    for run in [1]:
-        seed = np.random.randint(0, 100000000)
+    N_KERNELS = 2
+    kernels = []
+    for i in range(N_KERNELS):
+        kernel = np.random.random((3, 3))*2 - 1
+        kernels.append(kernel)
+        print(f'Kernel {i}:\n{kernel}')
         
-        np.random.seed(seed)
-        print(f'Seed: {seed}')
+        kernel_expanded = expand_array(kernel)
+        for j in range(1,1):
+            print(f'Kernel expanded{i}:\n{kernel_expanded.size}')
+            kernels.append(kernel_expanded)
+            kernel_expanded = expand_array(kernel_expanded)
 
+    for i in tqdm(range(UPDATES)):
+        b.update_multikernel(kernels)
+        
 
-        b = Board(X, Y)
-        b.B[X//2, Y//2] = 1
-
-
-        for i in tqdm(range(UPDATES)):
-            #b.update_multikernel(kernels)
-            b.update_L(kernels, reactants, products)
-            
-        height, width, = b.data[0].shape
-        images = []
-        for img_data in b.data:
-            img_data_scaled = (img_data * 255).astype(np.uint8)
-            images.append(img_data_scaled)
-
-
-        date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_name = '_MEDIA_New'
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-        #imageio.mimsave(f'{folder_name}/{date}_{seed}_{run}.gif', images, duration=50)
-        imageio.mimsave(f'test.gif', images, duration=5)
+    make_gif_color(b)
