@@ -99,7 +99,8 @@ def expand_array(input_array):
 
 if __name__ == '__main__':
     seed = np.random.randint(0, 100000000)
-
+    seed = 41217378
+    
     np.random.seed(seed)
     print(f'Seed: {seed}')
 
@@ -120,21 +121,27 @@ if __name__ == '__main__':
     b.B[X//2, Y//2] = 1
     #b.B = np.random.randint(-1,2,(X, Y))
 
-    N_KERNELS = 1
+    N_KERNELS = 20
     kernels = []
     for i in range(N_KERNELS):
         kernel = np.random.random((3, 3))*2 - 1
-        kernels.append(kernel)
-        print(f'Kernel {i}:\n{kernel}')
-        
+        #kernels.append(kernel)
+        #print(f'Kernel {i}:\n{kernel}')
+        #kernels.append(kernel.T)
+        #kernels.append(kernel.T.T)
+        #kernels.append(kernel.T.T.T)
         kernel_expanded = expand_array(kernel)
-        for j in range(1,4):
+        for j in range(1,1):
             print(f'Kernel expanded{i}:\n{kernel_expanded.shape}')
             #kernels.append(kernel_expanded)
             kernel_expanded = expand_array(kernel_expanded)
         
         kernels.append(kernel_expanded)
-            
+        kernels.append(kernel_expanded.T)
+        kernels.append(kernel_expanded.T.T)
+        kernels.append(kernel_expanded.T.T.T)
+        
+    kernels[-1] = np.random.random((3, 3))*2 - 1
     for i in tqdm(range(UPDATES)):
         b.update_multikernel(kernels)
         
