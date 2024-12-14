@@ -99,7 +99,7 @@ def expand_array(input_array):
 
 if __name__ == '__main__':
     seed = np.random.randint(0, 100000000)
-    seed = 41217378
+    #seed = 41217378
     
     np.random.seed(seed)
     print(f'Seed: {seed}')
